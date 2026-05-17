@@ -4,15 +4,15 @@ from pathlib import Path
 METRICS_FILE = Path("metrics/metrics.csv")
 
 FIELDNAMES = [
+    "request_id",
     "timestamp_utc",
+    "provider_name",
     "model",
     "prompt_tokens",
     "completion_tokens",
     "total_tokens",
     "latency_ms",
     "estimated_cost_usd",
-    "request_id",
-    "provider_name"
 ]
 
 

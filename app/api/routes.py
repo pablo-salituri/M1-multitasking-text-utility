@@ -29,6 +29,8 @@ def query_endpoint(request: QueryRequest):
 
     response_dict = result["llm_response"]
     metrics_data = result["metrics"]
+    metrics_data["request_id"] = str(uuid4())
+    metrics_data["provider_name"] = MODEL_PROVIDER
 
     try:
         log_metrics(metrics_data)

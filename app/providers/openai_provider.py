@@ -83,11 +83,25 @@ def ask_openai(question: str) -> dict:
     # OpenAI connection problem
     except Exception:
         return {
-            "category": "general_inquiry",
-            "priority": "high",
-            "answer": "The AI provider is currently unavailable.",
-            "confidence": 0.0,
-            "actions": [
-                "Please try again later"
-            ]
+            "llm_response": {
+                "category": "general_inquiry",
+                "priority": "high",
+                "answer": "The AI provider is currently unavailable.",
+                "confidence": 0.0,
+                "actions": [
+                    "Please try again later"
+                ]
+            },
+            "metrics": {
+                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+                "model": MODEL_NAME,
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+                "latency_ms": round(
+                    (time.perf_counter() - start_time) * 1000,
+                    2
+                ),
+                "estimated_cost_usd": 0.0
+            }
         }

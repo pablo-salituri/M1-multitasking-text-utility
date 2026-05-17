@@ -6,7 +6,7 @@ from uuid import uuid4
 from datetime import datetime, timezone
 
 from app.core.config import MODEL_PROVIDER, MODEL_NAME
-from app.providers.openai_provider import OpenAIProvider
+from app.providers.provider_manager import ProviderManager
 from app.services.metrics_service import log_metrics
 
 
@@ -29,7 +29,10 @@ def main():
     print("Type your question and press Enter.")
     print("Type 'exit' to quit.\n")
 
-    provider = OpenAIProvider(model=MODEL_NAME)
+    provider = ProviderManager(
+        provider_name=MODEL_PROVIDER,
+        model_name=MODEL_NAME
+    )
 
     while True:
         question = input("User > ").strip()
@@ -42,37 +45,33 @@ def main():
             print("Please enter a valid question.\n")
             continue
 
-        # start loader
         stop_event = threading.Event()
         loader = threading.Thread(target=loading_animation, args=(stop_event,))
         loader.start()
 
-        # query provider
         result = provider.query(question)
 
-        # stop loader
         stop_event.set()
         loader.join()
 
         response = result["llm_response"]
         metrics = result["metrics"]
 
-        # enrich metrics with CLI-level metadata
         metrics["request_id"] = str(uuid4())
         metrics["provider_name"] = MODEL_PROVIDER
-        metrics["timestamp_utc"] = datetime.now(timezone.utc).isoformat()
 
         log_metrics(metrics)
 
-        print("\nResponse:\n")
-        print(json.dumps({
+        output = {
             "request_id": metrics["request_id"],
             "timestamp_utc": metrics["timestamp_utc"],
             "provider_name": MODEL_PROVIDER,
             "model_used": MODEL_NAME,
             **response
-        }, indent=2, ensure_ascii=False))
+        }
 
+        print("\nResponse:\n")
+        print(json.dumps(output, indent=2, ensure_ascii=False))
         print("\n")
 
 

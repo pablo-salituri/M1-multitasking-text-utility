@@ -1,6 +1,7 @@
 import json
 import time
 
+from datetime import datetime, timezone
 from openai import OpenAI
 from app.services.prompt_service import load_main_prompt
 from app.core.config import (
@@ -68,6 +69,7 @@ def ask_openai(question: str) -> dict:
         return {
             "llm_response": parsed,
             "metrics": {
+                "timestamp_utc": datetime.now(timezone.utc).isoformat(),
                 "model": MODEL_NAME,
                 "prompt_tokens": prompt_tokens,
                 "completion_tokens": completion_tokens,

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from app.models.request_models import QueryRequest
 from app.models.response_models import QueryResponse
 from app.core.enums import CategoryEnum, PriorityEnum
+from app.providers.openai_provider import ask_openai
 
 router = APIRouter()
 
@@ -22,7 +23,7 @@ def query_endpoint(request: QueryRequest):
         model_used = "dummy",
         category = CategoryEnum.GENERAL_INQUIRY,
         priority = PriorityEnum.LOW,
-        answer = "Temporary mock response.",
+        answer = ask_openai(request.question),
         confidence = 0.0,
-        actinos = []
+        actions = []
     )

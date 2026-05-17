@@ -5,8 +5,6 @@ from app.core.enums import MODEL_ALIASES
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")            
-# ToDo: Realmente hay que definirlo en env? no es mas comodo en codigo?
-# ToDo: Ver si se llega a manejar con CLI
 MODEL_PROVIDER = os.getenv("MODEL_PROVIDER", "openai")  
 MODEL_PROFILE = os.getenv("MODEL_PROFILE", "cheap")
 

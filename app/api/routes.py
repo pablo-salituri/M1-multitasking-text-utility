@@ -7,6 +7,7 @@ from app.models.request_models import QueryRequest
 from app.models.response_models import QueryResponse
 from app.providers.openai_provider import ask_openai
 from app.core.config import MODEL_NAME
+from app.services.metrics_service import log_metrics
 
 
 router = APIRouter()
@@ -19,9 +20,13 @@ def health_check():
 
 @router.post("/query", response_model=QueryResponse)
 def query_endpoint(request: QueryRequest):
-    response_dict = ask_openai(request.question)
+    provider_result = ask_openai(request.question)
+    response_dict = provider_result["llm_response"]
+    metrics_data = provider_result["metrics"]
 
     try:
+        log_metrics(metrics_data)
+        
         return QueryResponse(
             request_id=str(uuid4()),
             timestamp_utc=datetime.now(timezone.utc).isoformat(),

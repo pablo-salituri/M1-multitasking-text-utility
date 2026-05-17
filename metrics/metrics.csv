@@ -1,0 +1,2 @@
+model,prompt_tokens,completion_tokens,total_tokens,latency_ms,estimated_cost_usd
+gpt-4.1-mini,466,79,545,4137.19,0.000313

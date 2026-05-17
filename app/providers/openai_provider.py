@@ -1,4 +1,5 @@
 import json
+import time
 
 from openai import OpenAI
 from app.services.prompt_service import load_main_prompt
@@ -14,6 +15,7 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 def ask_openai(question: str) -> dict:
     system_prompt = load_main_prompt()
+    start_time = time.perf_counter()
     
     try:
         response = client.responses.create(
@@ -30,6 +32,23 @@ def ask_openai(question: str) -> dict:
         )
 
         content = response.output_text
+        
+        latency_ms = round(
+            (time.perf_counter() - start_time) * 1000,
+            2
+        )
+        
+        prompt_tokens = response.usage.input_tokens
+        completion_tokens = response.usage.output_tokens
+        total_tokens = response.usage.total_tokens
+        
+        estimated_cost_usd = round(
+            (
+                (prompt_tokens * 0.0000004) +
+                (completion_tokens * 0.0000016)
+            ),
+            6
+        )
 
         try:
             parsed = json.loads(content)
@@ -46,7 +65,18 @@ def ask_openai(question: str) -> dict:
                 ]
             }
 
-        return parsed
+        return {
+            "llm_response": parsed,
+            "metrics": {
+                "model": MODEL_NAME,
+                "prompt_tokens": prompt_tokens,
+                "completion_tokens": completion_tokens,
+                "total_tokens": total_tokens,
+                "latency_ms": latency_ms,
+                "estimated_cost_usd": estimated_cost_usd
+            }
+        }
+
 
     # OpenAI connection problem
     except Exception:

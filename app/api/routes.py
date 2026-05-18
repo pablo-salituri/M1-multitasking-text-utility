@@ -1,14 +1,14 @@
 from uuid import uuid4
 from datetime import datetime, timezone
+
 from fastapi import APIRouter
 from pydantic import ValidationError
 
 from app.models.request_models import QueryRequest
 from app.models.response_models import QueryResponse
-from app.providers.openai_provider import ask_openai
-from app.core.config import MODEL_NAME
+from app.core.config import MODEL_PROVIDER, MODEL_NAME
+from app.providers.provider_manager import ProviderManager
 from app.services.metrics_service import log_metrics
-
 
 router = APIRouter()
 
@@ -20,17 +20,25 @@ def health_check():
 
 @router.post("/query", response_model=QueryResponse)
 def query_endpoint(request: QueryRequest):
-    provider_result = ask_openai(request.question)
-    response_dict = provider_result["llm_response"]
-    metrics_data = provider_result["metrics"]
+    provider = ProviderManager(
+        provider_name=MODEL_PROVIDER,
+        model_name=MODEL_NAME
+    )
+
+    result = provider.query(request.question)
+
+    response_dict = result["llm_response"]
+    metrics_data = result["metrics"]
+    metrics_data["request_id"] = str(uuid4())
+    metrics_data["provider_name"] = MODEL_PROVIDER
 
     try:
         log_metrics(metrics_data)
-        
+
         return QueryResponse(
             request_id=str(uuid4()),
             timestamp_utc=datetime.now(timezone.utc).isoformat(),
-            provider_name="openai",
+            provider_name=MODEL_PROVIDER,
             model_used=MODEL_NAME,
 
             category=response_dict["category"],
@@ -52,7 +60,5 @@ def query_endpoint(request: QueryRequest):
             priority="low",
             answer="The system could not generate a valid response.",
             confidence=0.0,
-            actions=[
-                "Please try again later"
-            ]
+            actions=["Please try again later"]
         )

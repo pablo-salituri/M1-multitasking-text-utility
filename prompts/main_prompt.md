@@ -48,7 +48,7 @@ JSON schema:
   "category": "billing",
   "priority": "medium",
   "answer": "string",
-  "confidence": 0.85,
+  "confidence": float between 0 and 1,
   "actions": [
     "string"
   ]

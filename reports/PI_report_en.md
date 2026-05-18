@@ -57,6 +57,12 @@ The project uses:
 - few-shot prompting,
 - explicit JSON schema guidance.
 
+Prompt location:
+
+```text
+prompts/main_prompt.md
+```
+
 Few-shot prompting was selected because it significantly improved:
 
 - JSON consistency,
@@ -107,22 +113,22 @@ metrics/metrics.csv
 
 Tracked metrics:
 
-- prompt tokens,
-- completion tokens,
-- total tokens,
-- latency,
-- estimated cost.
+```csv
+request_id,timestamp_utc,provider_name,model,prompt_tokens,completion_tokens,total_tokens,latency_ms,estimated_cost_usd
+```
 
 Example execution:
 
 ```csv
-provider=openai
-model=gpt-4.1-mini
-prompt_tokens=467
-completion_tokens=58
-total_tokens=525
-latency_ms=5265.78
-estimated_cost_usd=0.00028
+request_id = ec69c993-ac01-422b-a4c2-7bbd9b279f42
+timestamp_utc = 2026-05-18T21:11:54.515505+00:00
+provider = openai
+model = gpt-4.1-mini
+prompt_tokens = 467
+completion_tokens = 58
+total_tokens = 525
+latency_ms = 5265.78
+estimated_cost_usd = 0.00028
 ```
 
 These metrics enable monitoring of operational cost and performance.
@@ -132,6 +138,10 @@ These metrics enable monitoring of operational cost and performance.
 # Safety Layer
 
 The project includes a lightweight middleware-style safety layer that blocks clearly adversarial prompts before provider execution.
+
+```text
+app/services/safety_service.py
+```
 
 Example rejected prompt:
 
@@ -177,9 +187,8 @@ Estimated costs are manually approximated, which simplifies implementation but r
 Potential future improvements include:
 
 - additional providers,
-- stronger moderation pipelines,
-- retry mechanisms,
+- persistent DB storage,
 - Dockerization,
 - CI/CD integration,
 - advanced observability dashboards,
-- provider auto-fallback orchestration.
+- advanced moderation layer
